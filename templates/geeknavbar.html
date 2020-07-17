@@ -6,8 +6,8 @@
 
   <div class="geeknavbar__menu">
     <span><a href="">Home</a></span>
-    <span><a href="">Gallery</a></span>
-    <span><a href="{% url "pybo:index" %}">Forum</a></span>
+    <span><a href="">Projects</a></span>
+    <span><a href="{% url "pybo:index" %}">QnA</a></span>
     <span><a href="">Contacts</a></span>
     {% if user.is_authenticated %}
     <span style="color: #DEE4EB;"><a href="{% url 'common:logout' %}">{{ user.username }} [Logout]</a></span>
