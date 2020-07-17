@@ -1,5 +1,3 @@
-#[/Users/candicehan/projects/mysite/pybo/apps.py]
-
 from django.apps import AppConfig
 
 

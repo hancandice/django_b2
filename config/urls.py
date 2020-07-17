@@ -1,5 +1,3 @@
-#[/Users/candicehan/projects/mysite/config/urls.py]
-
 """config URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -16,18 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-# ---------------------------------------- [edit] ---------------------------------------- #
-from django.urls import include, path
-# ---------------------------------------------------------------------------------------- #
-# ---------------------------------------- [edit] ---------------------------------------- #
+from django.urls import path, include
 from pybo.views import base_views
-# ---------------------------------------------------------------------------------------- #
+# from pybo import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-# ---------------------------------------- [edit] ---------------------------------------- #
     path('pybo/', include('pybo.urls')),
-# ---------------------------------------------------------------------------------------- #
     path('common/', include('common.urls')),
-    path('', base_views.index, name='index'),
+    path('', base_views.index, name="index"),
 ]

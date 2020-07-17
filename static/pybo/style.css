@@ -1,0 +1,78 @@
+@import "../geeknavbar.css";
+
+:root {
+  /* CSS Color */
+  --white: #f9f9f9;
+  --black: #363636;
+  --light-beige: #f0ece3;
+  --sand-beige: #dfd3c3;
+  --tan-beige: #c7b198;
+  --charcoal: #343a40;
+
+  /*   
+  --padding: 12px;
+  --spacing-small: 6px;
+  --avatar-size: 35px;
+
+  
+  --font-large: 18px;
+  --font-medium: 14px;
+  --font-small: 12px;
+  --font-micro: 10px;
+  --icon-size: 16px; */
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: none;
+}
+
+button,
+button:focus {
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+textarea {
+  width: 100%;
+}
+
+input[type="submit"] {
+  margin-top: 10px;
+}
+
+body {
+  background-color: var(--light-beige);
+  font-family: "Source Sans Pro", sans-serif;
+}
+
+.badge {
+  margin-top: 1em;
+  background-color: var(--tan-beige);
+  box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0);
+}
+
+.card {
+  background-color: var(--sand-beige);
+  border: none;
+  box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0);
+}
+
+textarea .form-control {
+  outline: none;
+  resize: none;
+  /* overflow: auto; */
+}
+
+pre {
+  background-color: rgb(211, 208, 208);
+  padding: 0.7rem;
+  border-radius: 0.7rem;
+  /* box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0); */
+}

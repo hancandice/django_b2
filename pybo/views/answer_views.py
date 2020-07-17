@@ -1,74 +1,64 @@
-from ..models import Question, Answer
 from django.shortcuts import render, get_object_or_404, redirect, resolve_url
 from django.utils import timezone
-from ..forms import AnswerForm
+from django.core.paginator import Paginator
+# from django.http import HttpResponse
+from ..models import Question, Answer, Comment
+from ..forms import QuestionForm, AnswerForm, CommentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+# Create your views here.
 
 
-@login_required(login_url='common:login')
-def answer_create(request, question_id):
-    """
-    pybo 답변 등록
-    """
-    question = get_object_or_404(Question, pk=question_id)
+@login_required(login_url="common:login")
+def answerCreate(request, questionId):
+    question = get_object_or_404(Question, pk=questionId)
     if request.method == "POST":
         form = AnswerForm(request.POST)
         if form.is_valid():
             answer = form.save(commit=False)
-            answer.author = request.user
-            answer.create_date = timezone.now()
+            answer.createDate = timezone.now()
             answer.question = question
+            answer.author = request.user
             answer.save()
-            return redirect('{}#answer_{}'.format(
-                resolve_url('pybo:detail', question_id=question.id), answer.id))
-
+            return redirect('{}#answer_{}'.format(resolve_url('pybo:detail', questionId=question.id), answer.id))
         else:
-            context = {'question': question, 'form': form}
-            return render(request, 'pybo/question_detail.html', context)
+            return render(request, "pybo/question_detail.html", {'question':question, 'form':form})    
     else:
         form = AnswerForm()
-        context = {'question': question, 'form': form}
-        return render(request, 'pybo/question_detail.html', context)
+        context = {'question':question, 'form':form}
+        return render(request, "pybo/question_detail.html", context)
+
 
 
 @login_required(login_url='common:login')
-def answer_modify(request, answer_id):
-    """
-    pybo 답변수정
-    """
-    answer = get_object_or_404(Answer, pk=answer_id)
+def answerModify(request, answerId):
+    answer = get_object_or_404(Answer, pk=answerId)
     if request.user != answer.author:
-        messages.error(request, '수정권한이 없습니다')
-        return redirect('pybo:detail', question_id=answer.question.id)
-
-    elif request.method == "POST":
-        form = AnswerForm(request.POST, instance=answer)
-        if form.is_valid():
-            answer = form.save(commit=False)
-            answer.author = request.user
-            answer.modify_date = timezone.now()
-            answer.save()
-            return redirect('{}#answer_{}'.format(
-                resolve_url('pybo:detail', question_id=answer.question.id), answer.id))
-        else:
-            context = {'answer': answer, 'form': form}
-            return render(request, 'pybo/answer_form.html', context)
-
+        messages.error(request, 'Not authorized to modify')
+        return redirect('pybo:detail', questionId=answer.question.id)
     else:
-        form = AnswerForm(instance=answer)
-        context = {'answer': answer, 'form': form}
-        return render(request, 'pybo/answer_form.html', context)
-
+        if request.method == "GET":
+            form = AnswerForm(instance=answer)
+            context = {'answer':answer, 'form':form}
+            return render(request, 'pybo/answer_form.html', context)
+        else:
+            form = AnswerForm(request.POST,instance=answer)    
+            if form.is_valid():
+                answer = form.save(commit=False)
+                answer.author = request.user
+                answer.modifyDate = timezone.now()
+                answer.save()
+                return redirect('{}#answer_{}'.format(resolve_url('pybo:detail',questionId=answer.question.id), answer.id))
+            else:
+                context = {'answer':answer, 'form':form}
+                return render(request, 'pybo/answer_form.html', context)   
 
 @login_required(login_url='common:login')
-def answer_delete(request, answer_id):
-    """
-    pybo 답변삭제
-    """
-    answer = get_object_or_404(Answer, pk=answer_id)
+def answerDelete(request, answerId):
+    answer = get_object_or_404(Answer, pk=answerId)
     if request.user != answer.author:
-        messages.error(request, '삭제권한이 없습니다')
+        messages.error(request, 'Not authorized to delete')
     else:
         answer.delete()
-    return redirect('pybo:detail', question_id=answer.question.id)
+    return redirect('pybo:detail', questionId=answer.question.id)
+

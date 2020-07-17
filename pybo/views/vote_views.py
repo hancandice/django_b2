@@ -1,32 +1,25 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, resolve_url
+from django.shortcuts import get_object_or_404, redirect
 from ..models import Question, Answer
 
-
 @login_required(login_url='common:login')
-def vote_question(request, question_id):
-    """
-    pybo 질문추천등록
-    """
-    question = get_object_or_404(Question, pk=question_id)
+def voteQuestion(request, questionId):
+    question = get_object_or_404(Question, pk=questionId)
     if request.user == question.author:
-        messages.error(request, '본인이 작성한 글은 추천할 수 없습니다')
+        messages.error(request, "You can't 'Like' your own post")
     else:
         question.voter.add(request.user)
-    return redirect('pybo:detail', question_id=question_id)
+    return redirect('pybo:detail', questionId=question.id)
 
+    # Question 모델의 vorter는 여러사람을 추가할 수 있는 ManyToManyField이므로 question.voter.add(request.user) 처럼 add 함수를 사용하여 추천인을 추가해야 한다. 
+    # ※ 동일한 사용자가 동일한 질문을 여러번 추천하더라도 추천수가 증가하지는 않는다. ManyToManyField를 사용하더라도 중복은 허락되지 않는다.
 
 @login_required(login_url='common:login')
-def vote_answer(request, answer_id):
-    """
-    pybo 답글추천등록
-    """
-    answer = get_object_or_404(Answer, pk=answer_id)
+def voteAnswer(request, answerId):
+    answer = get_object_or_404(Answer, pk=answerId)
     if request.user == answer.author:
-        messages.error(request, '본인이 작성한 글은 추천할 수 없습니다')
-        return redirect('pybo:detail', question_id=answer.question.id)
+        messages.error(request, "You can't 'Like' your own post")
     else:
         answer.voter.add(request.user)
-        return redirect('{}#answer_{}'.format(
-            resolve_url('pybo:detail', question_id=answer.question.id), answer.id))
+    return redirect('pybo:detail', questionId=answer.question.id)

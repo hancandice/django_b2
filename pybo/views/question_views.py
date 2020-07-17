@@ -1,72 +1,74 @@
-
-from ..models import Question
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from ..forms import QuestionForm
-
+from django.core.paginator import Paginator
+# from django.http import HttpResponse
+from ..models import Question, Answer, Comment
+from ..forms import QuestionForm, AnswerForm, CommentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 
-
-@login_required(login_url='common:login')
-def question_create(request):
-    """
-    pybo 질문 등록
-    """
-    if request.method == 'POST':
+@login_required(login_url="common:login")
+def questionCreate(request):
+    if request.method =="POST":
         form = QuestionForm(request.POST)
         if form.is_valid():
             question = form.save(commit=False)
             question.author = request.user
-            question.create_date = timezone.now()
+            question.createDate=timezone.now()
             question.save()
-            return redirect('pybo:index')
+            return redirect("pybo:index")
         else:
-            context = {'form': form}
-            return render(request, 'pybo/question_form.html', context)
-
+            return render(request, "pybo/question_form.html", {'form':form})
     else:
         form = QuestionForm()
-        context = {'form': form}
-        return render(request, 'pybo/question_form.html', context)
-
-@login_required(login_url='common:login')
-def question_modify(request, question_id):
-    """
-    pybo 질문수정
-    """
+        return render(request, "pybo/question_form.html", {'form':form})
+            
+@login_required(login_url="common:login")
+def questionModify(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     if request.user != question.author:
-        messages.error(request, '수정권한이 없습니다')
-        return redirect('pybo:detail', question_id=question.id)
-
-    elif request.method == "POST":
-        form = QuestionForm(request.POST, instance=question)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user
-            question.modify_date = timezone.now()
-            question.save()
-            return redirect('pybo:detail', question_id=question.id)
-        else:
-            context = {'form': form}
-            return render(request, 'pybo/question_form.html', context)
-
+        messages.error(request, 'Not authorized to modify')
+        return redirect('pybo:detail', questionId=question_id)    
     else:
-        form = QuestionForm(instance=question) # 폼 생성시 이처럼 instance 값을 지정하면 폼에 값이 채워지게 된다.
-        context = {'form': form}
-        return render(request, 'pybo/question_form.html', context)
+        if request.method == "GET":
+            form = QuestionForm(instance=question)
+            context = {'form':form}
+            return render(request, 'pybo/question_form.html' , context)    
+        else:
+            form = QuestionForm(request.POST, instance=question)
+            if form.is_valid():
+                question = form.save(commit=False)
+                question.author = request.user
+                question.modifyDate = timezone.now()
+                question.save()
+                return redirect('pybo:detail', questionId=question.id)
+            else:
+                return render(request, 'pybo/question_form.html', {'form':form})    
 
-@login_required(login_url='common:login')
-def question_delete(request, question_id):
-    """
-    pybo 질문삭제
-    """
-    question = get_object_or_404(Question, pk=question_id)
+
+
+# @login_required(login_url='common:login')                
+# def questionDelete(request, questionId):
+#     question = get_object_or_404(Question, pk=questionId)
+#     if request.user != question.author:
+#         messages.error(request, 'Not authorized to delete')
+#         return redirect('pybo:detail', questionId=question.id)
+#     question.delete()
+#     return redirect('pybo:index')
+
+@login_required(login_url='common:login')                
+def questionDelete(request, questionId):
+    question = get_object_or_404(Question, pk=questionId)
     if request.user != question.author:
-        messages.error(request, '삭제권한이 없습니다')
-        return redirect('pybo:detail', question_id=question.id)
+        messages.error(request, 'Not authorized to delete')
+        return redirect('pybo:detail', questionId=question.id)
+    else:
+        if (question.answer_set.count() > 0):
+            messages.error(request, "Question with answer(s) cannot be deleted")
+            return redirect('pybo:detail', questionId=question.id)
+        else:
+            question.delete()
+            return redirect('pybo:index')
 
-    question.delete()
-    return redirect('pybo:index')
+    
